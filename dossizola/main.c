@@ -168,10 +168,10 @@ int main (int argc, char *argv[])
 	printf ("\nIf you have fun with this game, do not forget to rate it at :\n\thttp://happypenguin.org/show?Do'SSi%%20Zo'la\n\nIf you have some question or remark, please send mail to:\n\tdossiman@users.sourceforge.net\n\n");
 	
 	SDL_FreeSurface (jeu.back);
-	SDL_FreeSurface (jeu.police1.img);
+	//SDL_FreeSurface (jeu.police1.img);
 	SDL_FreeSurface (jeu.police2.img);
 	SDL_FreeSurface (jeu.police3.img);
-	SDL_FreeSurface (jeu.police1big.img);
+	//SDL_FreeSurface (jeu.police1big.img);
 	SDL_FreeSurface (jeu.police2big.img);
 	SDL_FreeSurface (jeu.police3big.img);
 	
