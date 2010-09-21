@@ -43,6 +43,51 @@ void Aide (JEU *jeu, SDL_Surface *imgMenu)
 }
 
 // ****************************************************************************
+// ********************************* Splash ***********************************
+// ****************************************************************************
+void Splash (JEU *jeu, SDL_Surface *imgMenu)
+{
+	SDL_Event evt;
+	int optypos = jeu->ecran->h / (jeu->ecran->h / jeu->police1.rect.h);
+	int centre = jeu->ecran->w / 2;		// Position centré au milieu de l'écran
+
+	SDL_BlitSurface (imgMenu, NULL, jeu->ecran, NULL);
+	SDL_BlitSurface (imgMenu, NULL, jeu->back,  NULL);
+	SDL_UpdateRect (jeu->ecran, 0, 0, jeu->ecran->w, jeu->ecran->h);
+	
+	if (Afficher_Chaine (centre - strlen (TXT_DON1) * jeu->police1.rect.w / 2, 0, DON_VITESSE, TXT_DON1, jeu->police3, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON2) * jeu->police1.rect.w / 2, optypos*1, DON_VITESSE, TXT_DON2, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON3) * jeu->police1.rect.w / 2, optypos*2, DON_VITESSE, TXT_DON3, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON4) * jeu->police1.rect.w / 2, optypos*3, DON_VITESSE, TXT_DON4, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON5) * jeu->police1.rect.w / 2, optypos*4, DON_VITESSE, TXT_DON5, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON6) * jeu->police1.rect.w / 2, optypos*5, DON_VITESSE, TXT_DON6, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON7) * jeu->police1.rect.w / 2, optypos*6, DON_VITESSE, TXT_DON7, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON8) * jeu->police1.rect.w / 2, optypos*7, DON_VITESSE, TXT_DON8, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON9) * jeu->police1.rect.w / 2, optypos*8, DON_VITESSE, TXT_DON9, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON10) * jeu->police1.rect.w / 2, optypos*9, DON_VITESSE, TXT_DON10, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON11) * jeu->police1.rect.w / 2, optypos*10, DON_VITESSE, TXT_DON11, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON12) * jeu->police1.rect.w / 2, optypos*11, DON_VITESSE, TXT_DON12, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON13) * jeu->police1.rect.w / 2, optypos*12, DON_VITESSE, TXT_DON13, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON14) * jeu->police1.rect.w / 2, optypos*13, DON_VITESSE, TXT_DON14, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON15) * jeu->police1.rect.w / 2, optypos*14, DON_VITESSE, TXT_DON15, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON16) * jeu->police1.rect.w / 2, optypos*15, DON_VITESSE, TXT_DON16, jeu->police1, jeu->ecran, jeu->back)) return;
+	if (Afficher_Chaine (centre - strlen (TXT_DON17) * jeu->police1.rect.w / 2, optypos*16, DON_VITESSE, TXT_DON17, jeu->police1, jeu->ecran, jeu->back)) return;
+	
+	SDL_BlitSurface (jeu->back, NULL, jeu->ecran,  NULL);
+	SDL_UpdateRect (jeu->ecran, 0, 0, jeu->ecran->w, jeu->ecran->h);
+
+	while (1)
+	if (SDL_PollEvent (&evt))
+	{	
+		// Quitte sur un appui de la touche [ESC]
+		if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) return;
+		
+		// Clic de souris avec le bouton gauche
+		if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == 1) return;
+	}
+}
+
+// ****************************************************************************
 // ******************************** Options ***********************************
 // ****************************************************************************
 void Options (JEU *jeu, SDL_Surface *imgMenu)
@@ -287,25 +332,27 @@ void Afficher_IA (int nivo, SDL_Rect src[], SDL_Rect dest[], SDL_Surface *imgNiv
 }
 
 // ****************************************************************************
-// ********************************** Menu ************************************ Draws the main menu
+// ********************************** Menu ************************************
 // ****************************************************************************
 BOOL Menu (JEU *jeu)
 {
 	SDL_Surface *imgDossi1, *imgDossi2, *imgNivo;	// Surface des images
-	SDL_Surface *imgMenu;					// Surface du fond d'écran
+	SDL_Surface *imgMenu;				// Surface du fond d'écran
+	SDL_Surface *wosiLogo;
+	SDL_Rect wosilogo;				// Rectanglefor the WOSI Logo
 	SDL_Rect src, dossi1, dossi2;			// Rects des dessins des joueurs
-	SDL_Rect type1, type2;					// Rects du type des joueurs
-	SDL_Rect nivo1[3], nivo2[3], nivo[3];	// Rects du niveau de l'IA
+	SDL_Rect type1, type2;				// Rects du type des joueurs
+	SDL_Rect nivo1[3], nivo2[3], nivo[3];		// Rects du niveau de l'IA
 	//SDL_Rect op1, op2, op3, op4;			// Rects des options
-	SDL_Rect jouer, quitter, aide, options;			// Rects de boutons
-	//SDL_Rect xgrille, ygrille;				// Rects des dimensions de la grille
-	SDL_Event evt;							// Sert à récupérer les événements du clavier et de la souris
-	int centre1 = jeu->ecran->w / 4 - 20;	// Position centré sur le quart gauche de l'écran
-	int centre2 = jeu->ecran->w - centre1;	// Position centré sur le quart droit  de l'écran
-	int frame = 0;							// Image en cours dans l'animation
-	int nbImgDossi = 20;					// Nb d'images dans l'animation des Do'SSis
-	char ch[100];							// Chaine de caractère temporaire
-	BOOL bis = OUI;							// Répète la même image d'animation
+	SDL_Rect jouer, quitter, aide, options;		// Rects de boutons
+	//SDL_Rect xgrille, ygrille;			// Rects des dimensions de la grille
+	SDL_Event evt;					// Sert à récupérer les événements du clavier et de la souris
+	int centre1 = jeu->ecran->w / 4 - 20;		// Position centré sur le quart gauche de l'écran
+	int centre2 = jeu->ecran->w - centre1;		// Position centré sur le quart droit  de l'écran
+	int frame = 0;					// Image en cours dans l'animation
+	int nbImgDossi = 20;				// Nb d'images dans l'animation des Do'SSis
+	char ch[100];					// Chaine de caractère temporaire
+	BOOL bis = OUI;					// Répète la même image d'animation
 	int i;
 	
 	// Charge les images
@@ -317,6 +364,8 @@ BOOL Menu (JEU *jeu)
 	if (!(imgDossi2 = IMG_Load (fichier))) ImageErreur (fichier);
 	sprintf (fichier, "%s%s", imgpath, IMG_NIVO);
 	if (!(imgNivo   = IMG_Load (fichier)))	  ImageErreur (fichier);
+	sprintf (fichier, "%s%s", imgpath, IMG_WOSILOGO);
+	if (!(wosiLogo   = IMG_Load (fichier)))	  ImageErreur (fichier);
 	
 	// Définit la couleur transparente des images
 	SDL_SetColorKey (imgDossi1, SDL_SRCCOLORKEY, SDL_MapRGB (imgDossi1->format, 255, 0, 255));
@@ -339,6 +388,16 @@ debut:
 	dossi1.x = centre1 - dossi1.w / 2;
 	dossi2.x = centre2 - dossi2.w / 2;
 	
+	// Rectangle for the WOSI logo
+	wosilogo.w = wosiLogo->w;
+	wosilogo.h = wosiLogo->h;
+	wosilogo.x = jeu->ecran->w - wosilogo.w;
+	wosilogo.y = jeu->ecran->h - wosilogo.h;
+
+	SDL_BlitSurface (wosiLogo, NULL, jeu->ecran, &wosilogo);
+	SDL_BlitSurface (wosiLogo, NULL, jeu->back,  &wosilogo);
+	SDL_UpdateRect (jeu->ecran, 0, 0, jeu->ecran->w, jeu->ecran->h);
+
 	// Rectangles de choix du type de joueurs (humain ou ordi)
 	if (jeu->J1TYPE == HUMAIN) type1.w = strlen (TXT_HUMAIN) * jeu->police1.rect.w;
 	else type1.w = strlen (TXT_ORDI) * jeu->police1.rect.w;
@@ -471,6 +530,7 @@ debut:
 					SDL_FreeSurface (imgDossi1);
 					SDL_FreeSurface (imgDossi2);
 					SDL_FreeSurface (imgNivo);
+					SDL_FreeSurface (wosiLogo);
 					return OUI;
 				}
 			}
@@ -492,6 +552,7 @@ debut:
 					SDL_FreeSurface (imgDossi1);
 					SDL_FreeSurface (imgDossi2);
 					SDL_FreeSurface (imgNivo);
+					SDL_FreeSurface (wosiLogo);
 					return NON;
 				}
 				
@@ -499,6 +560,13 @@ debut:
 				if (Dans_Rect (evt.button.x, evt.button.y, aide))
 				{
 					Aide (jeu, imgMenu);
+					goto debut;
+				}
+
+				// If they click on the WOSI logo
+				if (Dans_Rect (evt.button.x, evt.button.y, wosilogo))
+				{
+					Splash (jeu, imgMenu);
 					goto debut;
 				}
 
