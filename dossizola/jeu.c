@@ -5,15 +5,15 @@
 // ****************************************************************************
 // ******************************* Tester_Menu ********************************
 // ****************************************************************************
-CHXMENU Tester_Menu (SDL_Event *evt, BOOL fQuitter, BOOL fMenu, BOOL fRefaire, BOOL fConseil, JEU *jeu)
+CHXMENU Tester_Menu (SDL_Event *evt, BOOL fQuitter, BOOL fMenu, BOOL fRefaire, BOOL fConseil, BOOL fMusic, JEU *jeu)
 {
 	int i;
 	int x, y;
 	
 	// Demande de quitter le jeu
 	if (evt->type == SDL_QUIT || (evt->type == SDL_KEYDOWN && evt->key.keysym.sym == SDLK_ESCAPE))
-		if (Questionner (TXT_QSTQUITTER, jeu->police1, jeu->police2, jeu->police3, jeu->ecran))
-			return QUITTER;
+		if (Questionner (TXT_QSTMENU, jeu->police1, jeu->police2, jeu->police3, jeu->ecran))
+			return MENU;
 	
 	// Place le curseur aux bonnes coordonnées
 	if (evt->type == SDL_MOUSEMOTION)
@@ -27,7 +27,7 @@ CHXMENU Tester_Menu (SDL_Event *evt, BOOL fQuitter, BOOL fMenu, BOOL fRefaire, B
 	else return RIEN;
 	
 	// Réaffiche les textes en alpha blending !
-	for (i = 0; i < 4; i ++)
+	for (i = 0; i < 5; i ++)
 		SDL_BlitSurface (jeu->back, &jeu->rMenu[i], jeu->ecran, &jeu->rMenu[i]);
 	
 	// Affiche en opaque le texte sous le curseur
@@ -39,8 +39,10 @@ CHXMENU Tester_Menu (SDL_Event *evt, BOOL fQuitter, BOOL fMenu, BOOL fRefaire, B
 		Afficher_Chaine (jeu->rMenu[2].x, jeu->rMenu[2].y, 0, TXT_REFAIRE, jeu->police3, jeu->ecran, jeu->ecran);
 	if (fConseil && Dans_Rect (x, y, jeu->rMenu[3]))
 		Afficher_Chaine (jeu->rMenu[3].x, jeu->rMenu[3].y, 0, TXT_CONSEIL, jeu->police3, jeu->ecran, jeu->ecran);
+	if (fMusic && Dans_Rect (x, y, jeu->rMenu[4]))
+		Afficher_Chaine (jeu->rMenu[4].x, jeu->rMenu[4].y, 0, TXT_MUSIC, jeu->police3, jeu->ecran, jeu->ecran);
 	
-	SDL_UpdateRects (jeu->ecran, 4, jeu->rMenu);
+	SDL_UpdateRects (jeu->ecran, 5, jeu->rMenu);
 	
 	if (evt->type == SDL_MOUSEBUTTONDOWN && evt->button.button == 1)		// Clic bouton gauche
 	{
@@ -58,6 +60,8 @@ CHXMENU Tester_Menu (SDL_Event *evt, BOOL fQuitter, BOOL fMenu, BOOL fRefaire, B
 			}
 		if (fConseil && Dans_Rect (x, y, jeu->rMenu[3]))
 			return CONSEIL;
+		if (fMusic && Dans_Rect (x, y, jeu->rMenu[4]))
+			toggleMusic();
 		
 		SDL_GetMouseState (&x, &y);
 		evt->type = SDL_MOUSEMOTION;
@@ -117,6 +121,7 @@ void Secouer_Ecran (JOUEUR j[], GRILLE grille, SDL_Surface *ecran)
 	SDL_Rect fond, rect;
 	int xDecal, yDecal;
 	int i;
+	boomChannel = Mix_PlayChannel(-1, boom, 0);
 
 	// Rectangle de copie du fond d'écran
 	fond.x = grille.x1 - (j[0].imgCours->w / j[0].nCours - grille.imgCase->w) / 2 - 16;
@@ -128,7 +133,7 @@ void Secouer_Ecran (JOUEUR j[], GRILLE grille, SDL_Surface *ecran)
 	
 	// Déplace aléatoirement la grille
 	for (i = 0; i <= TREMBLE_NB / TREMBLE_VITESSE; i ++)
-    {
+	{
 		// Décallage aléatoire
 		xDecal = Alea (-TREMBLE_DECAL, TREMBLE_DECAL);
 		yDecal = Alea (-TREMBLE_DECAL, TREMBLE_DECAL);
@@ -215,13 +220,13 @@ BOOL Intemperie (JOUEUR j[], GRILLE *grille, JEU *jeu, CHXMENU *chxmenu)
 	src.h = dest.h = j[n].imgFeu->h;
 	src.x = src.y = 0;
 	dest.x = dest.y = 0;
-	
+	wooshChannel = Mix_PlayChannel(-1, woosh, 0);
 	// Boucle de l'animation tant que toutes l'animation de la boule de feu n'a pas été faite
 	do
 	{
 		if (SDL_PollEvent (&evt))		// Attend un événement
 		{	// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, jeu);
+			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, OUI, jeu);
 			if (*chxmenu) return OUI;
 		}
 		else
@@ -260,6 +265,7 @@ BOOL Intemperie (JOUEUR j[], GRILLE *grille, JEU *jeu, CHXMENU *chxmenu)
 		SDL_UpdateRects (jeu->ecran, 1, &dest);
 		SDL_UpdateRects (jeu->ecran, 1, &prec);
 	}
+
 	while (++ frame <= j[n].nFeu*2);
 	
 	// Rectangle du trou crée
@@ -276,6 +282,7 @@ BOOL Intemperie (JOUEUR j[], GRILLE *grille, JEU *jeu, CHXMENU *chxmenu)
 	Afficher_Joueur (j[n].y <= j[!n].y ? &j[n]  : &j[!n], jeu->ecran);
 	Afficher_Joueur (j[n].y <= j[!n].y ? &j[!n] : &j[n],  jeu->ecran);
 	SDL_UpdateRects (jeu->ecran, 1, &dest);
+	SDL_SetAlpha (j[n].imgFeu, SDL_SRCALPHA, 191);
 	
 	// Fait trembler l'écran
 	Secouer_Ecran (j, *grille, jeu->ecran);
@@ -300,7 +307,7 @@ BOOL Placer_Trou (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu, BOO
 	SDL_Event evt;				// Pour détecter un appui sur [ESC]
 	int xSouris, ySouris;		// Coords de la souris
 	*chxmenu = RIEN;
-	
+
 	// Vérifie s'il l'on peut placer le trou
 	if (grille->c[x][y] != VIDE) return NON;
 	if (!conseil) grille->c[x][y] = TROU;
@@ -335,13 +342,14 @@ BOOL Placer_Trou (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu, BOO
 	dest.y = yPos = yDep;
 	xDecal = (float)(xDest - xDep) / (float)(j[n].nFeu * 2 - 1);
 	yDecal = (float)(yDest - yDep) / (float)(j[n].nFeu * 2 - 1);
-	
+
+	wooshChannel = Mix_PlayChannel(-1, woosh, 0);
 	// Boucle de l'animation tant que toutes l'animation de la boule de feu n'a pas été faite
 	do
 	{
 		if (SDL_PollEvent (&evt))		// Attend un événement
 		{	// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, jeu);
+			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, OUI, jeu);
 			if (*chxmenu) return OUI;
 		}
 		else
@@ -399,13 +407,14 @@ BOOL Placer_Trou (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu, BOO
 		{	SDL_UpdateRects (jeu->ecran, 1, &dest);
 			SDL_UpdateRects (jeu->ecran, 1, &prec);
 		}
+		
 	}
 	while (++ frame < j[n].nFeu * 2);
 	
 	// Si un conseil était demandé remet les animations à leur transparence d'origine et efface la boule
 	if (conseil)
-	{	SDL_SetAlpha (j[n].imgLance, SDL_SRCALPHA, 0);
-		SDL_SetAlpha (j[n].imgFeu, SDL_SRCALPHA, 64);
+	{	SDL_SetAlpha (j[n].imgLance, SDL_SRCALPHA, 255);
+		SDL_SetAlpha (j[n].imgFeu, SDL_SRCALPHA, 191);
 		SDL_BlitSurface (jeu->back, &dest, jeu->ecran, &dest);
 		SDL_BlitSurface (jeu->back, &j[n].rect, jeu->ecran, &j[n].rect);
 		Afficher_Joueur (j[n].y <= j[!n].y ? &j[n]  : &j[!n], jeu->ecran);
@@ -413,7 +422,8 @@ BOOL Placer_Trou (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu, BOO
 		SDL_UpdateRects (jeu->ecran, 1, &dest);
 	}
 	else
-	{	// Rectangle du trou crée
+	{
+		// Rectangle du trou crée
 		dest.w = dest.h = grille->imgCase->w;
 		dest.x = Case2CoordX (x, *grille);
 		dest.y = Case2CoordY (y, *grille);
@@ -477,7 +487,7 @@ BOOL Deplacer_Joueur (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu,
 	{
 		if (SDL_PollEvent (&evt))		// Attend un événement
 		{	// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, jeu);
+			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, OUI, jeu);
 			if (*chxmenu) return OUI;
 		}
 		else
@@ -511,7 +521,7 @@ BOOL Deplacer_Joueur (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu,
 		Afficher_Joueur (j[n].y < j[!n].y ? &j[n]  : &j[!n], jeu->ecran);
 		Afficher_Joueur (j[n].y < j[!n].y ? &j[!n] : &j[n],  jeu->ecran);
 		if (conseil)
-		{	SDL_SetAlpha (j[n].imgCours, SDL_SRCALPHA, 0);
+		{	SDL_SetAlpha (j[n].imgCours, SDL_SRCALPHA, 255);
 		}
 		
 		// Attend d'être synchronisé sur la vitesse d'affichage et rafraîchit l'écran
@@ -554,7 +564,7 @@ BOOL Placer_Joueur (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu, B
 	SDL_Event evt;
 	int xSouris, ySouris;		// Coords de la souris
 	*chxmenu = RIEN;
-	
+
 	// Vérifie qu'il y a de la place pour placer le joueur et le place
 	if (grille->c[x][y] != VIDE) return NON;
 	
@@ -568,11 +578,11 @@ BOOL Placer_Joueur (int x, int y, JOUEUR j[], int n, GRILLE *grille, JEU *jeu, B
 	j[n].rect.y = Case2CoordY (j[n].y, *grille) - (j[n].imgCours->h / 4           - grille->imgCase->h) / 2;
 	
 	// Le joueur apparaît progressivement (en diminuant sa transparence)
-	for (alpha = 250; alpha >= 0; alpha -= 10)
+	for (alpha = 0; alpha <= 250; alpha += 10)
 	{
 		if (SDL_PollEvent (&evt))
 		{	// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, jeu);
+			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, OUI, jeu);
 			if (*chxmenu) return OUI;
 		}
 		else
@@ -637,7 +647,12 @@ void Placer_Joueurs (JEU *jeu, JOUEUR j[], GRILLE *grille, CHXMENU *chxmenu)
 			if (tour == 0) Afficher_Chaine ((jeu->ecran->w - strlen (TXT_J1PLACE) * jeu->police2.rect.w) / 2, jeu->titre.y, 0, TXT_J1PLACE, jeu->J1ROUGE ? jeu->police3 : jeu->police2, jeu->ecran, jeu->ecran);
 			if (tour == 1) Afficher_Chaine ((jeu->ecran->w - strlen (TXT_J2PLACE) * jeu->police2.rect.w) / 2, jeu->titre.y, 0, TXT_J2PLACE, jeu->J1ROUGE ? jeu->police2 : jeu->police3, jeu->ecran, jeu->ecran);
 			SDL_UpdateRects (jeu->ecran, 1, &jeu->titre);
-		
+			
+			if (evt.type == SDL_KEYUP)
+			{
+				handleKey (evt.key);
+			}
+
 			if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == 1)	// Bouton gauche enfoncé
 			{
 				x = Clic2CaseX (evt.button.x, *grille);		// Récupère les coords
@@ -652,7 +667,7 @@ void Placer_Joueurs (JEU *jeu, JOUEUR j[], GRILLE *grille, CHXMENU *chxmenu)
 			}
 			
 			// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, OUI, jeu);
+			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, OUI, OUI, jeu);
 			if (*chxmenu == CONSEIL)
 			{	Ordi_Place (&x, &y, j[tour], *grille);
 				Placer_Joueur (x, y, j, tour, grille, jeu, OUI, chxmenu);
@@ -725,6 +740,16 @@ void Constructeur (JOUEUR j[], GRILLE *grille, BOOL c, SDL_Surface *ecran, SDL_S
 	SDL_BlitSurface (img, NULL, j[c].imgFeu,  NULL);
 	SDL_BlitSurface (img, NULL, j[!c].imgFeu, NULL);
 	SDL_FreeSurface (img);*/
+	/*  Add in 5 tile images then uncomment this code chunk
+	switch (Alea (1, 6))
+	{
+		case 1:	sprintf (fichier, "%s%s", imgpath, IMG_CASE1);	break;
+		case 2:	sprintf (fichier, "%s%s", imgpath, IMG_CASE2);	break;
+		case 3:	sprintf (fichier, "%s%s", imgpath, IMG_CASE3);	break;
+		case 4:	sprintf (fichier, "%s%s", imgpath, IMG_CASE4);	break;
+		case 5:	sprintf (fichier, "%s%s", imgpath, IMG_CASE5);	break;
+		default: sprintf (fichier, "%s%s", imgpath, IMG_CASE1);	break;
+	} And comment/delete the line below*/
 	sprintf (fichier, "%s%s", imgpath, IMG_CASE);
 	if (!(grille->imgCase	= IMG_Load (fichier)))	ImageErreur (fichier);
 	sprintf (fichier, "%s%s", imgpath, IMG_FEU);
@@ -785,11 +810,11 @@ void Constructeur (JOUEUR j[], GRILLE *grille, BOOL c, SDL_Surface *ecran, SDL_S
 	SDL_SetColorKey (j[!c].imgAttendFeu, SDL_SRCCOLORKEY, SDL_MapRGB (j[!c].imgAttendFeu->format, 255, 0, 255));
 	
 	// Définit la transparence des cases et de la boule de feu
-	SDL_SetAlpha (grille->imgCase,	SDL_SRCALPHA, 100);
-	SDL_SetAlpha (j[c].imgFeu,		SDL_SRCALPHA, 64);
-	SDL_SetAlpha (j[!c].imgFeu,		SDL_SRCALPHA, 64);
-	SDL_SetAlpha (j[c].imgPerdu,	SDL_SRCALPHA, 100);
-	SDL_SetAlpha (j[!c].imgPerdu,	SDL_SRCALPHA, 100);
+	SDL_SetAlpha (grille->imgCase,	SDL_SRCALPHA, 155);
+	SDL_SetAlpha (j[c].imgFeu,		SDL_SRCALPHA, 191);
+	SDL_SetAlpha (j[!c].imgFeu,		SDL_SRCALPHA, 191);
+	SDL_SetAlpha (j[c].imgPerdu,	SDL_SRCALPHA, 155);
+	SDL_SetAlpha (j[!c].imgPerdu,	SDL_SRCALPHA, 155);
 		
 	// Définit la taille des rectangles des joueurs
 	j[c].rect.w = j[c].imgCours->w / j[c].nCours;
@@ -840,6 +865,10 @@ void Destructeur (JOUEUR j[], GRILLE *grille)
 	SDL_FreeSurface (j[1].imgGagne);
 	SDL_FreeSurface (j[0].imgPerdu);
 	SDL_FreeSurface (j[1].imgPerdu);
+	SDL_FreeSurface (j[0].imgAttend);
+	SDL_FreeSurface (j[1].imgAttend);
+	SDL_FreeSurface (j[0].imgAttendFeu);
+	SDL_FreeSurface (j[1].imgAttendFeu);
 }
 
 
@@ -867,7 +896,7 @@ BOOL Tester_Perdu (JOUEUR j, GRILLE grille)
 // ****************************************************************************
 // ************************** Animer_Perdant_Gagnant **************************
 // ****************************************************************************
-void Animer_Perdant_Gagnant (JOUEUR *j1, JOUEUR *j2, JEU *jeu, CHXMENU *chxmenu)
+void Animer_Perdant_Gagnant (JOUEUR *j1, JOUEUR *j2, JEU *jeu, CHXMENU *chxmenu, JOUEUR j[], GRILLE *grille)
 {
 	SDL_Rect prec1, prec2;		// Précédente position des joueurs
 	SDL_Event evt;				// Pour détecter un appui sur [ESC]
@@ -881,6 +910,7 @@ void Animer_Perdant_Gagnant (JOUEUR *j1, JOUEUR *j2, JEU *jeu, CHXMENU *chxmenu)
 	int vitesse = 1;
 	int xdir = 0, ydir = 0;
 	*chxmenu = RIEN;
+	int i;
 	
 	// Réajuste le rectangles du joueur qui se transforme en ange
 	j2->rect.w = j2->imgPerdu->w / j2->nPerdu;
@@ -892,17 +922,49 @@ void Animer_Perdant_Gagnant (JOUEUR *j1, JOUEUR *j2, JEU *jeu, CHXMENU *chxmenu)
 	j2->anim = PERDU;
 	j1->frame = 0;
 	j2->frame = 10;
-	
 	// Affiche qui a gagné
-	if (j1->n == J2) Afficher_Chaine ((jeu->ecran->w - strlen (TXT_J2GAGNE) * jeu->police1.rect.w) / 2, jeu->titre.y, 0, TXT_J2GAGNE, jeu->police1, jeu->ecran, jeu->back);
-	else Afficher_Chaine ((jeu->ecran->w - strlen (TXT_J1GAGNE) * jeu->police1.rect.w) / 2, jeu->titre.y, 0, TXT_J1GAGNE, jeu->police1, jeu->ecran, jeu->back);
-	
+	j1->winCount++;
+	if (j1->n == J2) 
+	{
+		Afficher_Chaine ((jeu->ecran->w - strlen (TXT_J2GAGNE) * jeu->police1.rect.w) / 2, jeu->titre.y, 0, TXT_J2GAGNE, jeu->police1, jeu->ecran, jeu->back);
+		if (j1->type == HUMAIN)
+		{
+			victoryChannel = Mix_PlayChannel(-1, victory, 0);
+		} else {
+			lossChannel = Mix_PlayChannel(-1, loss, 0);
+		}
+	}
+	else
+	{
+		Afficher_Chaine ((jeu->ecran->w - strlen (TXT_J1GAGNE) * jeu->police1.rect.w) / 2, jeu->titre.y, 0, TXT_J1GAGNE, jeu->police1, jeu->ecran, jeu->back);
+		if (j1->type == HUMAIN)
+		{
+			victoryChannel = Mix_PlayChannel(-1, victory, 0);
+		} else {
+			lossChannel = Mix_PlayChannel(-1, loss, 0);
+		}
+	}
+
+	for (i = 0; i < 2; i ++)
+	{
+		SDL_BlitSurface (grille->imgFond, &jeu->Scores[i], jeu->back, &jeu->Scores[i]);
+	}
+
+	sprintf (score, "%d", j[0].winCount);
+	Afficher_Chaine (jeu->Scores[0].x, jeu->Scores[0].y, 0, score, jeu->J1ROUGE ? jeu->police3big : jeu->police2big, jeu->back, jeu->back);
+	sprintf (score, "%d", j[1].winCount);
+	Afficher_Chaine (jeu->Scores[1].x, jeu->Scores[1].y, 0, score, jeu->J1ROUGE ? jeu->police2big : jeu->police3big, jeu->back, jeu->back);
+
+	SDL_BlitSurface (jeu->back, NULL, jeu->ecran, NULL);
+	SDL_UpdateRects (jeu->ecran, 2, jeu->Scores);
+
+
 	// Animation des joueurs
 	while (1)
 	{
 		if (SDL_PollEvent (&evt))		// Attend un événement
 		{	// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, jeu);
+			*chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, NON, OUI, jeu);
 			if (*chxmenu) return;
 		}
 		else
@@ -986,26 +1048,43 @@ BOOL Jeu (JEU *jeu)
 	BOOL repimg;					// Répète la même image d'animation
 	CHXMENU chxmenu;				// Valeur retournée après un test du menu
 	int n;
+	int i;
 	
 	// Si le joueur est humain met son IA au niveau 3
 	if (j[0].type == HUMAIN) j[0].nivo = 3;
 	if (j[1].type == HUMAIN) j[1].nivo = 3;
+
+	// Set both players scores to 0 to start
+	for ( i = 0; i < 2; i++ )
+		j[i].winCount = 0;
 	
 	// Rectangles des boutons du menu
-	jeu->rMenu[0].y = jeu->rMenu[1].y = jeu->rMenu[2].y = jeu->rMenu[3].y = jeu->ecran->h - jeu->police3.rect.h - 5;
-	jeu->rMenu[0].h = jeu->rMenu[1].h = jeu->rMenu[2].h = jeu->rMenu[3].h = jeu->police3.rect.h;
+	jeu->rMenu[0].y = jeu->rMenu[1].y = jeu->rMenu[2].y = jeu->rMenu[3].y = jeu->rMenu[4].y = jeu->ecran->h - jeu->police3.rect.h - 5;
+	jeu->rMenu[0].h = jeu->rMenu[1].h = jeu->rMenu[2].h = jeu->rMenu[3].h = jeu->rMenu[4].h = jeu->police3.rect.h;
 	jeu->rMenu[0].w = jeu->police3.rect.w * strlen (TXT_QUITTER);
 	jeu->rMenu[1].w	= jeu->police3.rect.w * strlen (TXT_MENU);
 	jeu->rMenu[2].w	= jeu->police3.rect.w * strlen (TXT_REFAIRE);
 	jeu->rMenu[3].w = jeu->police3.rect.w * strlen (TXT_CONSEIL);
-	jeu->rMenu[0].x	= (jeu->ecran->w - (strlen (TXT_QUITTER) + strlen (TXT_MENU) + strlen (TXT_REFAIRE) + strlen (TXT_CONSEIL) + 3) * jeu->police3.rect.w) / 2;
+	jeu->rMenu[4].w = jeu->police3.rect.w * strlen (TXT_MUSIC);
+	jeu->rMenu[0].x	= (jeu->ecran->w - (strlen (TXT_QUITTER) + strlen (TXT_MENU) + strlen (TXT_REFAIRE) + strlen (TXT_CONSEIL) + strlen (TXT_MUSIC) + 4) * jeu->police3.rect.w) / 2;
 	jeu->rMenu[1].x	= jeu->rMenu[0].x + jeu->rMenu[0].w + jeu->police3.rect.w;
 	jeu->rMenu[2].x	= jeu->rMenu[1].x + jeu->rMenu[1].w + jeu->police3.rect.w;
 	jeu->rMenu[3].x	= jeu->rMenu[2].x + jeu->rMenu[2].w + jeu->police3.rect.w;
+	jeu->rMenu[4].x	= jeu->rMenu[3].x + jeu->rMenu[3].w + jeu->police3.rect.w;
 	
 debut_jeu:
 	Constructeur (j, &grille, jeu->J1ROUGE, jeu->ecran, jeu->back);	// Charge les images, la grille, ...
-	
+
+	if ((strlen(songpath) >= strlen(SNG_INTRO)) && !strncasecmp(songpath+strlen(songpath)-strlen(SNG_INTRO), SNG_INTRO, strlen(SNG_INTRO)))
+	{
+		if ( songCount > 0 )
+		{
+			stopMusic();
+			strcpy( songpath, "random" );
+			startMusic( songpath );
+		}
+	}
+
 	// Valeurs de départ
 	action = J1_DEPLACE;
 	bis = OUI;
@@ -1018,17 +1097,31 @@ debut_jeu:
 	jeu->titre.x = (jeu->ecran->w - jeu->titre.w) / 2;
 	jeu->titre.y = (grille.y1 - jeu->titre.h) / 2;
 	
+	//Rectangles for player scores
+	jeu->Scores[0].w = jeu->Scores[1].w = jeu->police1.rect.w * TXT_BIG;
+	jeu->Scores[0].h = jeu->Scores[1].h = jeu->police1.rect.h * TXT_BIG;
+	jeu->Scores[0].y = jeu->Scores[1].y = ( jeu->ecran->h - jeu->Scores[0].h ) / 2;
+	jeu->Scores[0].x = ( grille.x1 - jeu->Scores[0].w ) / 2;
+	jeu->Scores[1].x = ( ( jeu->ecran->w - grille.x2 - jeu->Scores[1].w ) / 2 ) + grille.x2;
+	
+	//post scores
+	sprintf (score, "%d", j[0].winCount);
+	Afficher_Chaine (jeu->Scores[0].x, jeu->Scores[0].y, 0, score, jeu->J1ROUGE ? jeu->police3big : jeu->police2big, jeu->ecran, jeu->back);
+	sprintf (score, "%d", j[1].winCount);
+	Afficher_Chaine (jeu->Scores[1].x, jeu->Scores[1].y, 0, score, jeu->J1ROUGE ? jeu->police2big : jeu->police3big, jeu->ecran, jeu->back);
+
 	// Affiche le menu en bas de l'écran
 	SDL_SetAlpha (jeu->police3.img, SDL_SRCALPHA, 128);
 	Afficher_Chaine (jeu->rMenu[0].x, jeu->rMenu[0].y, 0, TXT_QUITTER, jeu->police3, jeu->ecran, jeu->back);
 	Afficher_Chaine (jeu->rMenu[1].x, jeu->rMenu[1].y, 0, TXT_MENU,    jeu->police3, jeu->ecran, jeu->back);
 	Afficher_Chaine (jeu->rMenu[2].x, jeu->rMenu[2].y, 0, TXT_REFAIRE, jeu->police3, jeu->ecran, jeu->back);
 	Afficher_Chaine (jeu->rMenu[3].x, jeu->rMenu[3].y, 0, TXT_CONSEIL, jeu->police3, jeu->ecran, jeu->back);
-	SDL_SetAlpha (jeu->police3.img, SDL_SRCALPHA, 0);
-	
+	Afficher_Chaine (jeu->rMenu[4].x, jeu->rMenu[4].y, 0, TXT_MUSIC,   jeu->police3, jeu->ecran, jeu->back);
+	SDL_SetAlpha (jeu->police3.img, SDL_SRCALPHA, 255);
+
 	Placer_Joueurs (jeu, j, &grille, &chxmenu);	// Pour choisir la position de départ
 	if (chxmenu) goto chx_menu;
-	
+
 	// Boucle de jeu principale
 	while (1)
 	{
@@ -1055,9 +1148,9 @@ debut_jeu:
 			grille.c[j[n].x][j[n].y] = VIDE;
 			Placer_Trou (j[n].x, j[n].y, j, n, &grille, jeu, NON, &chxmenu);
 			if (chxmenu) goto chx_menu;
-			
+
 			// Anime les joueurs (le gagnant danse et le perdant s'envole en ange)
-			Animer_Perdant_Gagnant (&j[!n], &j[n], jeu, &chxmenu);
+			Animer_Perdant_Gagnant (&j[!n], &j[n], jeu, &chxmenu, j, &grille);
 			if (chxmenu) goto chx_menu;
 		}
 		
@@ -1090,6 +1183,10 @@ debut_jeu:
 			
 			if (SDL_PollEvent (&evt))		// Attend un événement
 			{
+				if (evt.type == SDL_KEYUP)
+				{
+					handleKey (evt.key);
+				}
 				if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == 1)		// Clic bouton gauche
 				{
 					// Récupère les coordonnées de la case cliquée, -1 si en dehors de la grille
@@ -1101,7 +1198,7 @@ debut_jeu:
 				}
 				
 				// Teste si le curseur passe sur l'un des boutons du menu, ou si on clique dessus, ou si on veut quitter
-				chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, OUI, jeu);
+				chxmenu = Tester_Menu (&evt, OUI, OUI, OUI, OUI, OUI, jeu);
 				if (chxmenu == CONSEIL)
 				{	
 					if (action == J1_DEPLACE || action == J1_TROU) n = 0;

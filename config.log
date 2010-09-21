@@ -1,0 +1,18 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:561: checking for a BSD compatible install
+configure:614: checking whether build environment is sane
+configure:671: checking whether make sets ${MAKE}
+configure:717: checking for working aclocal
+configure:730: checking for working autoconf
+configure:743: checking for working automake
+configure:756: checking for working autoheader
+configure:769: checking for working makeinfo
+configure:786: checking for gcc
+configure:899: checking whether the C compiler (gcc  -g -O2 -L/srv/preware/cross-compile/staging/armv7/usr/lib/ -Wl,--allow-shlib-undefined,-rpath-link=/srv/preware/cross-compile/staging/armv7/usr/lib/) works
+configure:915: gcc -o conftest  -g -O2  -L/srv/preware/cross-compile/staging/armv7/usr/lib/ -Wl,--allow-shlib-undefined,-rpath-link=/srv/preware/cross-compile/staging/armv7/usr/lib/ conftest.c  1>&5
+configure:941: checking whether the C compiler (gcc  -g -O2 -L/srv/preware/cross-compile/staging/armv7/usr/lib/ -Wl,--allow-shlib-undefined,-rpath-link=/srv/preware/cross-compile/staging/armv7/usr/lib/) is a cross-compiler
+configure:946: checking whether we are using GNU C
+configure:974: checking whether gcc accepts -g
+configure:1008: checking for ranlib

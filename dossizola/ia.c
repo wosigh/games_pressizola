@@ -123,7 +123,6 @@ void Ordi_Place (int *x, int *y, JOUEUR j, GRILLE grille)
     for (v = 0; v <= grille.yc+1; v ++)
       if (Copie_Grille[u][v] > Max.nb)
 	Max.nb = Copie_Grille[u][v];
-  
   //Enregistre les coordonnées de toutes les cases égales à ce maximum
   Compteur = 0;
   for (u = 0; u <= grille.xc+1; u ++)
@@ -135,14 +134,12 @@ void Ordi_Place (int *x, int *y, JOUEUR j, GRILLE grille)
 	  Choix[Compteur] = Max;
 	  Compteur ++;
 	}
-  
+
   //Choisi aléatoirement l'une de ces cases
   u = Alea (0, Compteur-1);
   Max = Choix[u];
-  
   *x = Max.x-1;
   *y = Max.y-1;
-
  
 }
 
