@@ -1,0 +1,7 @@
+You need SDL and SDL_image to play.
+You need SDL-devel and SDL_image-devel to compile.
+
+Simply type for compile and install in /usr/local/games/dossizola:
+	./configure
+	make
+	make install
