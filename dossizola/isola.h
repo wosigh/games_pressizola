@@ -1,6 +1,5 @@
 #include <SDL/SDL_mixer.h>
 #include <dirent.h>
-#include "resize.h"
 #include <sys/param.h>
 
 //System Parameters
@@ -35,7 +34,7 @@
 #define DFT_DOUBLE_BOULEFEU NON
 #define DFT_XGRILLE 7
 #define DFT_YGRILLE 7
-#define DFT_FPS 64
+#define DFT_FPS 80
 
 // Textes
 #define TXT_OUI			"YES"

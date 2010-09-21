@@ -216,7 +216,7 @@ void Options (JEU *jeu, SDL_Surface *imgMenu)
 				
 				// Inverse la valeur et affiche le nouveau choix
 				FPS += 16;
-				if (FPS > 128) FPS = 32;
+				if (FPS > 112) FPS = 64;
 				sprintf (ch, "%d FPS", FPS);
 				Afficher_Chaine (op4.x, op4.y, CARACT_VITESSE, ch, jeu->police2, jeu->ecran, jeu->back);
 			}

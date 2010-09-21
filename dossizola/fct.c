@@ -296,7 +296,7 @@ void startMusic ( char *songpath )
 			int songChoice;
 			songChoice = Alea (1, songCount);
 			songpath = musicArray[songChoice].songpath;
-			//printf( "playing song %s from %s\n", musicArray[songChoice].songname, musicArray[songChoice].songpath );
+			printf( "playing song %s from %s\n", musicArray[songChoice].songname, musicArray[songChoice].songpath );
 		}
 	} else {
 		strcpy( songpath, sfxpath );
