@@ -1,5 +1,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <PDL.h>
 #include "isola.h"
 
 // ****************************************************************************
@@ -566,8 +567,9 @@ debut:
 				// If they click on the WOSI logo
 				if (Dans_Rect (evt.button.x, evt.button.y, wosilogo))
 				{
-					Splash (jeu, imgMenu);
-					goto debut;
+					PDL_LaunchBrowser( "http://donate.webos-internals.org" );
+					//Splash (jeu, imgMenu);
+					//goto debut;
 				}
 
 				// Si on clique sur le bouton options, за lance l'options

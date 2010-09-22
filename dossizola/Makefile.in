@@ -68,7 +68,7 @@ VERSION = @VERSION@
 ####### kdevelop will overwrite this part!!! (end)############
 bin_PROGRAMS = dossizola
 dossizola_SOURCES = menu.c jeu.c ia.c fct.c main.c resize.c
-dossizola_LDADD = -lpthread -lSDL -lSDL_image -lSDL_mixer
+dossizola_LDADD = -lpthread -lSDL -lSDL_image -lSDL_mixer -lpdl
 
 SUBDIRS = images 
 
