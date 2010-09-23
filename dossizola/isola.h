@@ -139,6 +139,9 @@
 #define IMG_POLICE1		"police-jaune.png"
 #define IMG_POLICE2		"police-verte.png"
 #define IMG_POLICE3		"police-rouge.png"
+#define IMG_POLICE1BIG		"police-jaune-big.png"
+#define IMG_POLICE2BIG		"police-verte-big.png"
+#define IMG_POLICE3BIG		"police-rouge-big.png"
 #define TXT_BIG			2
 #define IMG_CASE		"case.png"
 /*Holding these defines until I have extra tile images
