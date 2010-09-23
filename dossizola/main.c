@@ -109,16 +109,24 @@ int main (int argc, char *argv[])
 	if (!(jeu.police2.img = IMG_Load (fichier))) ImageErreur (fichier);
 	sprintf (fichier, "%s%s", imgpath, IMG_POLICE3);
 	if (!(jeu.police3.img = IMG_Load (fichier))) ImageErreur (fichier);
+	sprintf (fichier, "%s%s", imgpath, IMG_POLICE1BIG);
+	if (!(jeu.police1big.img = IMG_Load (fichier))) ImageErreur (fichier);
+	sprintf (fichier, "%s%s", imgpath, IMG_POLICE2BIG);
+	if (!(jeu.police2big.img = IMG_Load (fichier))) ImageErreur (fichier);
+	sprintf (fichier, "%s%s", imgpath, IMG_POLICE3BIG);
+	if (!(jeu.police3big.img = IMG_Load (fichier))) ImageErreur (fichier);
+/*
 	//jeu.police1big.img = SDL_ConvertSurface(jeu.police1.img, jeu.police1.img->format, SDL_SWSURFACE);
 	jeu.police2big.img = SDL_ConvertSurface(jeu.police2.img, jeu.police2.img->format, SDL_SWSURFACE);
 	jeu.police3big.img = SDL_ConvertSurface(jeu.police3.img, jeu.police3.img->format, SDL_SWSURFACE);
 	//jeu.police1big.img = SDL_ResizeFactor(jeu.police1big.img, TXT_BIG, IMG_RES_FILTER);
 	jeu.police2big.img = SDL_ResizeFactor(jeu.police2big.img, TXT_BIG, IMG_RES_FILTER);
 	jeu.police3big.img = SDL_ResizeFactor(jeu.police3big.img, TXT_BIG, IMG_RES_FILTER);
+*/
 	SDL_SetColorKey (jeu.police1.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police1.img->format, 255, 0, 255));
 	SDL_SetColorKey (jeu.police2.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police2.img->format, 255, 0, 255));
 	SDL_SetColorKey (jeu.police3.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police3.img->format, 255, 0, 255));
-	//SDL_SetColorKey (jeu.police1big.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police1big.img->format, 255, 0, 255));
+	SDL_SetColorKey (jeu.police1big.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police1big.img->format, 255, 0, 255));
 	SDL_SetColorKey (jeu.police2big.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police2big.img->format, 255, 0, 255));
 	SDL_SetColorKey (jeu.police3big.img, SDL_SRCCOLORKEY, SDL_MapRGB (jeu.police3big.img->format, 255, 0, 255));
 	jeu.police1.rect.x = jeu.police2.rect.x = jeu.police3.rect.x = 0;
@@ -168,10 +176,10 @@ int main (int argc, char *argv[])
 	printf ("\nIf you have fun with this game, do not forget to rate it at :\n\thttp://happypenguin.org/show?Do'SSi%%20Zo'la\n\nIf you have some question or remark, please send mail to:\n\tdossiman@users.sourceforge.net\n\n");
 	
 	SDL_FreeSurface (jeu.back);
-	//SDL_FreeSurface (jeu.police1.img);
+	SDL_FreeSurface (jeu.police1.img);
 	SDL_FreeSurface (jeu.police2.img);
 	SDL_FreeSurface (jeu.police3.img);
-	//SDL_FreeSurface (jeu.police1big.img);
+	SDL_FreeSurface (jeu.police1big.img);
 	SDL_FreeSurface (jeu.police2big.img);
 	SDL_FreeSurface (jeu.police3big.img);
 	
